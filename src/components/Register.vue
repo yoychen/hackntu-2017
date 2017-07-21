@@ -46,7 +46,20 @@
             <div class="col-md-10">
               <input v-model="password" type="password" class="form-control" id="inputPassword" placeholder="Password" required>
 
-              
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputHomeLocation" class="col-md-2 control-label">輸入住家位置</label>
+
+            <div class="col-md-10">
+              <input v-model="homeLocation" type="text" class="form-control" id="inputHomeLocation" placeholder="住家位置" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputCompanyLocation" class="col-md-2 control-label">輸入公司位置</label>
+
+            <div class="col-md-10">
+              <input v-model="companyLocation" type="text" class="form-control" id="inputCompanyLocation" placeholder="公司位置" required>
             </div>
           </div>
 
@@ -70,6 +83,8 @@ export default {
     return {
       email: '',
       password: '',
+      homeLocation: '',
+      companyLocation: '',
     };
   },
   mounted() {
@@ -87,13 +102,14 @@ export default {
       });
     },
     addUserInfo: function () {
+      const self = this;
       firebase.auth().signInWithEmailAndPassword(this.email, this.password)
       .then(function () {
         let loginUser = firebase.auth().currentUser;
         console.log("登入使用者為",loginUser);
         firebase.database().ref('users/' + loginUser.uid).set({
-          name: 'tutu',
-          age : 20,
+          homeLocation: self.homeLocation,
+          companyLocation: self.companyLocation,
         }).catch(function(error){
           console.error("寫入使用者資訊錯誤",error);
         });
