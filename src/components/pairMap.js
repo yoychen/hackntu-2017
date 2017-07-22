@@ -157,6 +157,7 @@ export function setMap () {
     disableDefaultUI: true,
     center: '臺北市大安區羅斯福路四段一號',
     zoom: 13,
+    loading: '',
     direction: [
       {
         from: '臺北市大安區羅斯福路四段一號',

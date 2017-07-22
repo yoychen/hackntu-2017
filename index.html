@@ -3,7 +3,19 @@
   <head>
     <meta charset="utf-8">
     <title>hackntu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+
+    <!-- Add to home screen for Android and modern mobile browsers -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="hackntu">
+    
+    <!-- Add to home screen for Windows -->
+    <meta name="msapplication-TileColor" content="#000000">
 
     <!-- Material Design fonts -->
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
@@ -15,6 +27,9 @@
     <!-- Bootstrap Material Design -->
     <link href="/static/css/bootstrap-material-design.css" rel="stylesheet">
     <link href="/static/css/ripples.min.css" rel="stylesheet">
+    
+    <link href="/static/css/swiper.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.6/sweetalert2.min.css" rel="stylesheet">
 
   </head>
   <body>
@@ -46,5 +61,6 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="/static/js/ripples.min.js"></script>
     <script src="/static/js/material.min.js"></script>
+    <script src="/static/js/swiper.min.js"></script>
   </body>
 </html>

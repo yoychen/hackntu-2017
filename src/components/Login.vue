@@ -52,7 +52,7 @@
 
           <div class="form-group">
             <div class="col-md-10 col-md-offset-2">
-              <button type="submit" class="btn-raised btn btn-primary">Submit</button>
+              <button type="submit" class="btn-raised btn btn-primary">登入</button>
               <button type="button" class="btn btn-default">回首頁</button>
             </div>
           </div>
@@ -83,7 +83,11 @@ export default {
         let loginUser = firebase.auth().currentUser;
         console.log("登入使用者為",loginUser);
         alert('登入成功');
-        this.$router.push('/');
+        if (this.email === 'admin@admin.admin') {
+          this.$router.push('/managerPair');
+        } else {
+          this.$router.push('/pairMap');
+        }
       }.bind(this))
       .catch(function(error) {
         // Handle Errors here.

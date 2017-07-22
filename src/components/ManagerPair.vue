@@ -4,44 +4,24 @@
     </div>
 
     <div @click.stop class="filter-sidebar" :class="{ open: sideNavOpen }">
-      <h2>篩選條件</h2>
-      <p>托育機構</p>
-      <span 
-        v-for="item in careInstitutions"
-        @click="toggleCareInstitutionsFilter(item)"
-        class="select-chip" 
-        :class="{ select: careInstitutionsFilter.indexOf(item) > -1 }">{{ item }}</span>
-
-      <p>最近距離</p>
-      <div class="radio">
-        <label>
-          <input v-model="pairMode" type="radio" name="sortingFun" value="1">
-          兩點最近
-        </label>
+      <h2>配對邀請</h2>
+      <div class="card-list">
+        <div @click="replyPair" class="card">
+          <h2>David</h2>
+          <p>台北市信義區仁愛路4段505號</p>
+        </div>
+        <div class="card">
+          <h2>David</h2>
+          <p>台北市信義區仁愛路4段505號</p>
+        </div>
       </div>
-      <div class="radio">
-        <label>
-          <input v-model="pairMode" type="radio" name="sortingFun" value="2">
-          離家近
-        </label>
-      </div>
-      <div class="radio">
-        <label>
-          <input v-model="pairMode" type="radio" name="sortingFun" value="3">
-          離工作場所近
-        </label>
-      </div>
-
-      <p>需要托育時間</p>
-      <input v-model="startDate" type="datetime-local" class="form-control" placeholder="開始時間">
-      <input v-model="endDate" type="datetime-local" class="form-control" placeholder="結束時間">
     </div>
 
     <i @click.stop="sideNavOpen = !sideNavOpen" class="filter-btn material-icons"  :class="{ open: sideNavOpen }">{{ sideNavOpen ? 'close' : 'filter_list' }}</i>
 
     <div class="swiper-container">
       <div class="swiper-wrapper">
-        <div @click="$router.push('/NannyInfo')" class="swiper-slide">
+        <div @click="replyPair" class="swiper-slide">
           <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
           <div class="user-info">
             <h2>Alice <span>3.8<i class="material-icons">star_rate</i></span></h2>
@@ -77,6 +57,7 @@
 
 <script>
 import { setMap } from './pairMap.js';
+import swal from 'sweetalert2'
 
 export default {
   name: 'pairMap',
@@ -85,9 +66,7 @@ export default {
       sideNavOpen: false,
       careInstitutions: ['托兒所', '安親班', '保姆'],
       careInstitutionsFilter: ['托兒所', '安親班', '保姆'],
-      pairMode: 1,
-      startDate: null,
-      endDate: null,
+
     };
   },
   mounted() {
@@ -108,6 +87,37 @@ export default {
       } else {
         this.careInstitutionsFilter.push(item);
       }
+    },
+    replyPair() {
+      swal({
+        title: '',
+        text: "是否願意接受配對邀請",
+        type: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        confirmButtonClass: 'btn btn-success',
+        cancelButtonClass: 'btn btn-danger',
+        buttonsStyling: false
+      }).then(function () {
+        swal(
+          'Deleted!',
+          'Your file has been deleted.',
+          'success'
+        )
+      }, function (dismiss) {
+        // dismiss can be 'cancel', 'overlay',
+        // 'close', and 'timer'
+        if (dismiss === 'cancel') {
+          swal(
+            'Cancelled',
+            'Your imaginary file is safe :)',
+            'error'
+          )
+        }
+      })
     }
   }
 };
@@ -117,6 +127,23 @@ export default {
 <style lang="scss">
   * {
     user-select: none;
+  }
+
+  .card-list {
+    margin-top: 2em;
+    .card {
+      padding: 5px 8px;
+      margin-bottom: 12px;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 3px rgba(42, 39, 39, 0.07);
+      h2 {
+        font-size: 20px;
+        margin: 0 0 3px;
+      }
+      p {
+        margin: 0;
+      }
+    }
   }
 
   .filter-btn {
