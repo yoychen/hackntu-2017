@@ -49,6 +49,22 @@
             </div>
           </div>
           <div class="form-group">
+            <label for="inputUserName" class="col-md-2 control-label">使用者姓名</label>
+
+            <div class="col-md-10">
+              <input v-model="username" type="text" class="form-control" id="inputUserName" placeholder="使用者姓名" required>
+
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputPhone" class="col-md-2 control-label">連絡電話</label>
+
+            <div class="col-md-10">
+              <input v-model="phone" type="text" class="form-control" id="inputPhone" placeholder="連絡電話" required>
+
+            </div>
+          </div>
+          <div class="form-group">
             <label for="inputHomeLocation" class="col-md-2 control-label">輸入住家位置</label>
 
             <div class="col-md-10">
@@ -97,6 +113,8 @@ export default {
     return {
       email: '',
       password: '',
+      username: '',
+      phone: '',
       homeLocation: '',
       companyLocation: '',
       image: '',
@@ -131,11 +149,28 @@ export default {
       firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
       .then(this.addUserInfo)
       .then(this.uploadImage)
+      .then(this.saveLocalStorage)
       .catch(function(error) {
         // Handle Errors here.
         let errorCode = error.code;
         let errorMessage = error.message;
         alert(errorMessage);
+      });
+    },
+    saveLocalStorage: function() {
+      const self = this;
+      var storageRef = firebase.storage().ref();
+      storageRef.child(`avatar/${self.imageName}`).getDownloadURL().then(function(url) {
+        const userDetail = {
+          email: self.email,
+          username: self.username,
+          phone: self.phone,
+          homeLocation: self.homeLocation,
+          companyLocation: self.companyLocation,
+          image: url,
+          imageName: self.imageName,
+        };
+        localStorage.setItem("userDetail", JSON.stringify(userDetail));
       });
     },
     uploadImage: function() {
@@ -160,6 +195,9 @@ export default {
         firebase.database().ref('users/' + loginUser.uid).set({
           homeLocation: self.homeLocation,
           companyLocation: self.companyLocation,
+          username: self.username,
+          phone: self.phone,
+          imageName: self.imageName,
         }).catch(function(error){
           console.error("寫入使用者資訊錯誤",error);
         });
