@@ -89,13 +89,38 @@ export default {
           this.$router.push('/pairMap');
         }
       }.bind(this))
+      .then(this.saveLocalStorage)
       .catch(function(error) {
         // Handle Errors here.
         let errorCode = error.code;
         let errorMessage = error.message;
         alert(errorMessage);
       });
-    }
+    },
+    saveLocalStorage: function() {
+			var userId = firebase.auth().currentUser.uid;
+			var ref = firebase.database().ref('/users/' + userId);
+      let userDetail = {};
+
+			ref.on("value", function(snapshot) {
+        userDetail.email = snapshot.val().email;
+        userDetail.username = snapshot.val().username;
+        userDetail.phone = snapshot.val().phone;
+        userDetail.homeLocation = snapshot.val().homeLocation;
+        userDetail.companyLocation = snapshot.val().companyLocation;
+        userDetail.imageName = snapshot.val().imageName;
+				saveImage();
+			}, function (error) {
+				 console.log("Error: " + error.code);
+			});
+			var saveImage = function() {
+				var imgStorageRef = firebase.storage().ref();
+				imgStorageRef.child(`avatar/${userDetail.imageName}`).getDownloadURL().then(function(url) {
+					userDetail.image = url;
+					localStorage.setItem("userDetail", JSON.stringify(userDetail));
+				});
+			}
+    },
   }
 };
 </script>
