@@ -62,6 +62,20 @@
               <input v-model="companyLocation" type="text" class="form-control" id="inputCompanyLocation" placeholder="公司位置" required>
             </div>
           </div>
+          <div class="form-group">
+            <label for="inputImage" class="col-md-2 control-label">請上傳大頭貼</label>
+
+            <div class="col-md-10">
+              <h2>上傳</h2>
+              <div v-if="!image">
+                <input type="file" class="btn-raised btn btn-primary" @change="onFileChange">
+              </div>
+              <div v-else>
+                <img :src="image" />
+                <button @click="removeImage">移除圖片</button>
+              </div>
+            </div>
+          </div>
 
           <div class="form-group">
             <div class="col-md-10 col-md-offset-2">
@@ -85,21 +99,55 @@ export default {
       password: '',
       homeLocation: '',
       companyLocation: '',
+      image: '',
     };
   },
   mounted() {
     $.material.init();
   },
   methods: {
+    onFileChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length)
+        return;
+      this.createImage(files[0]);
+    },
+    createImage(file) {
+      var image = new Image();
+      var reader = new FileReader();
+      var vm = this;
+
+      reader.onload = (e) => {
+        vm.image = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    removeImage: function (e) {
+      this.image = '';
+    },
     register(e) {
       firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
       .then(this.addUserInfo)
+      .then(this.uploadImage)
       .catch(function(error) {
         // Handle Errors here.
         let errorCode = error.code;
         let errorMessage = error.message;
         alert(errorMessage);
       });
+    },
+    uploadImage: function() {
+      const self = this;
+      var metadata = {
+        contentType: 'image/jpeg'
+      };
+      var storageRef = firebase.storage().ref('avatar/mountains.jpg');
+      storageRef.putString(self.image, 'data_url').then(function(snapshot) {
+        console.log('Uploaded a blob or file!');
+      }).catch(function(e) {
+        alert(e)
+      });
+
     },
     addUserInfo: function () {
       const self = this;
@@ -133,4 +181,9 @@ export default {
      color: green;
    }
  }
+img {
+  width: 30%;
+  display: block;
+  margin-bottom: 10px;
+}
 </style>
