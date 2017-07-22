@@ -100,6 +100,7 @@ export default {
       homeLocation: '',
       companyLocation: '',
       image: '',
+      imageName: '',
     };
   },
   mounted() {
@@ -120,6 +121,7 @@ export default {
       reader.onload = (e) => {
         vm.image = e.target.result;
       };
+      vm.imageName = file.name;
       reader.readAsDataURL(file);
     },
     removeImage: function (e) {
@@ -141,7 +143,7 @@ export default {
       var metadata = {
         contentType: 'image/jpeg'
       };
-      var storageRef = firebase.storage().ref('avatar/mountains.jpg');
+      var storageRef = firebase.storage().ref(`avatar/${self.imageName}`);
       storageRef.putString(self.image, 'data_url').then(function(snapshot) {
         console.log('Uploaded a blob or file!');
       }).catch(function(e) {
