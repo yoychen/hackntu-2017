@@ -1,66 +1,31 @@
 <template>
   <div class="hello">
-    <div class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="javascript:void(0)">Brand</a>
-        </div>
-        <div class="navbar-collapse collapse navbar-responsive-collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="javascript:void(0)">Link</a></li>
-            <li class="dropdown">
-              <a href="bootstrap-elements.html" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown
-                <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="javascript:void(0)">Action</a></li>
-                <li><a href="javascript:void(0)">Another action</a></li>
-                <li><a href="javascript:void(0)">Something else here</a></li>
-                <li class="divider"></li>
-                <li><a href="javascript:void(0)">Separated link</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
+    <div class="container my-card">
       <form @submit.prevent="login" class="form-horizontal">
         <fieldset>
-          <legend>登入</legend>
+          <legend id="card-title">登入</legend>
           <div class="form-group">
-            <label for="inputEmail" class="col-md-2 control-label">Email</label>
-
-            <div class="col-md-10">
-              <input v-model="email" type="email" class="form-control" id="inputEmail" placeholder="Email" required>
+            <div class="col-md-10 col-md-offset-1">
+              <input v-model="email" type="email" class="form-control my-input" id="inputEmail" placeholder="Email" required>
             </div>
           </div>
           <div class="form-group">
-            <label for="inputPassword" class="col-md-2 control-label">Password</label>
-
-            <div class="col-md-10">
-              <input v-model="password" type="password" class="form-control" id="inputPassword" placeholder="Password" required>
-
-              
+            <div class="col-md-10 col-md-offset-1">
+              <input v-model="password" type="password" class="form-control my-input" id="inputPassword" placeholder="Password" required>
             </div>
           </div>
 
           <div class="form-group">
-            <div class="col-md-10 col-md-offset-2">
-              <button type="submit" class="btn-raised btn btn-primary">登入</button>
+            <div class="my-btn-group">
+              <button type="submit" class="btn-raised btn btn-primary">Submit</button>
               <button type="button" class="btn btn-default">回首頁</button>
             </div>
           </div>
-          
+
         </fieldset>
       </form>
     </div>
-    
+
   </div>
 </template>
 
@@ -131,5 +96,60 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+
+<style lang="scss">
+input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+  color: #000;
+}
+input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+  color: #000;
+  opacity:  1;
+}
+input::-moz-placeholder { /* Mozilla Firefox 19+ */
+  color: #000;
+  opacity:  1;
+}
+input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #000;
+}
+input::-ms-input-placeholder { /* Microsoft Edge */
+  color: #000;
+}
+
+.my-card {
+  max-width: 450px;
+  margin: auto;
+}
+
+.container {
+  padding: 20px;
+  margin-top: 10%;
+  background-color: rgba(211, 211, 211, 0.93);;
+}
+
+legend#card-title {
+  text-align: center;
+}
+
+.my-btn-group {
+  text-align: center;
+}
+
+.form-group.is-empty {
+  font-size: 50px;
+}
+
+legend#card-title {
+  padding-top: 20px;
+}
+
+body {
+  background-image: url(
+    "https://images.unsplash.com/photo-1499237302743-ba2c2740f824?dpr=1&auto=format&fit=crop&w=1199&h=800&q=80&cs=tinysrgb&crop=");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+}
+
 </style>
