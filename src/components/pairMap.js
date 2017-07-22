@@ -206,6 +206,38 @@ export function getLanLongFromAddr(addr) {
   });
 }
 
+export function addDirection (waypoint) {
+  $('#pairMap').tinyMap('modify', {
+    direction: [
+      {
+        from: [25.07979,121.5678709],
+        to: [25.0516539,121.51374910000004],
+        travel: 'driving',
+        // 自訂路徑顏色
+        polylineOptions: {
+          strokeColor: '#FFC107',
+          strokeOpacity: 1,
+        },
+        waypoint: [
+          waypoint,
+        ],
+        icon: {
+          from: '/static/img/industry.png',
+          to: '/static/img/house.png',
+          waypoint: '/static/img/baby.png',
+        },
+        event: {
+          directions_changed: {
+            func: function () {
+                // $('#alert').addClass('alert-success').text('路徑規劃已完成。');
+            }
+          }
+        }
+      }
+    ]
+  });
+}
+
 export function addMarkers (data, icon, sliderScrollTo) {
     data.forEach(function(e, i) {
         let nowLocation = e;
@@ -222,35 +254,7 @@ export function addMarkers (data, icon, sliderScrollTo) {
                     'click': function (e) {
                       sliderScrollTo(nowIdx);
                       $('#pairMap').tinyMap('clear', 'direction');
-                      $('#pairMap').tinyMap('modify', {
-                        direction: [
-                          {
-                            from: [25.07979,121.5678709],
-                            to: [25.0516539,121.51374910000004],
-                            travel: 'driving',
-                            // 自訂路徑顏色
-                            polylineOptions: {
-                              strokeColor: '#FFC107',
-                              strokeOpacity: 1,
-                            },
-                            waypoint: [
-                              nowLocation.lanLong,
-                            ],
-                            icon: {
-                              from: '/static/img/industry.png',
-                              to: '/static/img/house.png',
-                              waypoint: '/static/img/baby.png',
-                            },
-                            event: {
-                              directions_changed: {
-                                func: function () {
-                                    // $('#alert').addClass('alert-success').text('路徑規劃已完成。');
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      });
+                      addDirection(nowLocation.lanLong);
                     }.bind(this),
                 }
             }]

@@ -119,7 +119,12 @@ export default {
         this.mySwiper.destroy();
         this.mySwiper = new Swiper ('.swiper-container', {
           loop: true,
-          // spaceBetween: 30,
+          onSlideChangeStart: function(swiper){
+            let center = this.filteredBabyCenterData[swiper.activeIndex - 1]
+            if (center) {
+              $('#pairMap').tinyMap('panTo', center.lanLong);
+            }
+          }.bind(this),
           
           // 如果需要分页器
           pagination: '.swiper-pagination',
@@ -149,7 +154,12 @@ export default {
 
     this.mySwiper = new Swiper ('.swiper-container', {
       loop: true,
-      // spaceBetween: 30,
+      onSlideChangeStart: function(swiper){
+        let center = this.filteredBabyCenterData[swiper.activeIndex - 1]
+        if (center) {
+          $('#pairMap').tinyMap('panTo', center.lanLong);
+        }
+      }.bind(this),
       
       // 如果需要分页器
       pagination: '.swiper-pagination',

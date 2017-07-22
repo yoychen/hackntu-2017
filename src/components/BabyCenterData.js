@@ -168,6 +168,12 @@ data = data.map(function (e, i) {
 	e.type = i % 2 == 0 ? "托兒所" : "保姆";
 	return e;
 })
+data = data.filter(function (e) {
+	if (e.lanLong[0] === 0 && e.lanLong[1] === 0) {
+		return false;
+	}
+	return true;
+})
 data.length = 15;
 
 export default data;
