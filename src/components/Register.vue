@@ -46,7 +46,34 @@
             <div class="col-md-10">
               <input v-model="password" type="password" class="form-control" id="inputPassword" placeholder="Password" required>
 
-              
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputHomeLocation" class="col-md-2 control-label">輸入住家位置</label>
+
+            <div class="col-md-10">
+              <input v-model="homeLocation" type="text" class="form-control" id="inputHomeLocation" placeholder="住家位置" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputCompanyLocation" class="col-md-2 control-label">輸入公司位置</label>
+
+            <div class="col-md-10">
+              <input v-model="companyLocation" type="text" class="form-control" id="inputCompanyLocation" placeholder="公司位置" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputImage" class="col-md-2 control-label">請上傳大頭貼</label>
+
+            <div class="col-md-10">
+              <h2>上傳</h2>
+              <div v-if="!image">
+                <input type="file" class="btn-raised btn btn-primary" @change="onFileChange">
+              </div>
+              <div v-else>
+                <img :src="image" />
+                <button @click="removeImage">移除圖片</button>
+              </div>
             </div>
           </div>
 
@@ -70,15 +97,38 @@ export default {
     return {
       email: '',
       password: '',
+      homeLocation: '',
+      companyLocation: '',
+      image: '',
     };
   },
   mounted() {
     $.material.init();
   },
   methods: {
+    onFileChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length)
+        return;
+      this.createImage(files[0]);
+    },
+    createImage(file) {
+      var image = new Image();
+      var reader = new FileReader();
+      var vm = this;
+
+      reader.onload = (e) => {
+        vm.image = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    removeImage: function (e) {
+      this.image = '';
+    },
     register(e) {
       firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
       .then(this.addUserInfo)
+      .then(this.uploadImage)
       .catch(function(error) {
         // Handle Errors here.
         let errorCode = error.code;
@@ -86,14 +136,28 @@ export default {
         alert(errorMessage);
       });
     },
+    uploadImage: function() {
+      const self = this;
+      var metadata = {
+        contentType: 'image/jpeg'
+      };
+      var storageRef = firebase.storage().ref('avatar/mountains.jpg');
+      storageRef.putString(self.image, 'data_url').then(function(snapshot) {
+        console.log('Uploaded a blob or file!');
+      }).catch(function(e) {
+        alert(e)
+      });
+
+    },
     addUserInfo: function () {
+      const self = this;
       firebase.auth().signInWithEmailAndPassword(this.email, this.password)
       .then(function () {
         let loginUser = firebase.auth().currentUser;
         console.log("登入使用者為",loginUser);
         firebase.database().ref('users/' + loginUser.uid).set({
-          name: 'tutu',
-          age : 20,
+          homeLocation: self.homeLocation,
+          companyLocation: self.companyLocation,
         }).catch(function(error){
           console.error("寫入使用者資訊錯誤",error);
         });
@@ -117,4 +181,9 @@ export default {
      color: green;
    }
  }
+img {
+  width: 30%;
+  display: block;
+  margin-bottom: 10px;
+}
 </style>
