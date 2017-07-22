@@ -13,19 +13,19 @@
         :class="{ select: careInstitutionsFilter.indexOf(item) > -1 }">{{ item }}</span>
 
       <p>最近距離</p>
-      <div class="radio">
+      <div class="radio" @click="showNearestBetween">
         <label>
           <input v-model="pairMode" type="radio" name="sortingFun" value="1">
           兩點最近
         </label>
       </div>
-      <div class="radio">
+      <div class="radio" @click="showNearestHome">
         <label>
           <input v-model="pairMode" type="radio" name="sortingFun" value="2">
           離家近
         </label>
       </div>
-      <div class="radio">
+      <div class="radio" @click="showNearestFactory">
         <label>
           <input v-model="pairMode" type="radio" name="sortingFun" value="3">
           離工作場所近
@@ -37,7 +37,7 @@
       <input v-model="endDate" type="datetime-local" class="form-control" placeholder="結束時間">
     </div>
 
-    <i @click.stop="sideNavOpen = !sideNavOpen" class="filter-btn material-icons"  :class="{ open: sideNavOpen }">{{ sideNavOpen ? 'close' : 'filter_list' }}</i>
+    <i @click.stop="sideNavOpen = !sideNavOpen" class="filter-btn material-icons"  :class="{ open: sideNavOpen }" style="text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);">{{ sideNavOpen ? 'close' : 'filter_list' }}</i>
 
     <div class="swiper-container">
       <div class="swiper-wrapper">
@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { setMap, addMarkers, getLanLongFromAddr } from './pairMap.js';
+import { setMap, addMarkers, getLanLongFromAddr, addDirection } from './pairMap.js';
 import babyCenterData from './BabyCenterData.js';
 import Vue from 'vue';
 
@@ -76,8 +76,8 @@ export default {
       babyCenterData,
       userData,
       mySwiper: null,
-      home: [25.07979,121.5678709],
-      factory: [25.0516539,121.51374910000004],
+      factory: [25.07979,121.5678709],
+      home: [25.0516539,121.51374910000004],
     };
   },
   computed: {
@@ -150,6 +150,7 @@ export default {
         addr: '台北市大同區長安西路',
       }], 'house');
       addMarkers(this.filteredBabyCenterData, 'baby', this.sliderScrollTo);
+      this.showNearestBetween();
     }.bind(this), '台北市大同區長安西路');
 
     this.mySwiper = new Swiper ('.swiper-container', {
@@ -166,6 +167,7 @@ export default {
     });      
 
     $('.swiper-slide').on('click', this.handleSliderClick);
+
   },
   methods: {
     sliderScrollTo: function (idx) {
@@ -181,9 +183,88 @@ export default {
       } else {
         this.careInstitutionsFilter.push(item);
       }
-    }
+    },
+    showNearestHome() {
+      let minDis = null;
+      let minIdx = null;
+      this.filteredBabyCenterData.forEach((e, i) => {
+        if (minDis === null) {
+          minDis = parseFloat(distance(e.lanLong[0], e.lanLong[1], this.home[0], this.home[1]));
+          minIdx = i;
+        } else {
+          let d = parseFloat(distance(e.lanLong[0], e.lanLong[1], this.home[0], this.home[1]));
+          if (d < minDis) {
+            minDis = parseFloat(distance(e.lanLong[0], e.lanLong[1], this.home[0], this.home[1]));
+            minIdx = i;
+          }
+        }
+      });
+      if (minIdx !== null) {
+        addDirection(this.filteredBabyCenterData[minIdx].lanLong);
+        this.sliderScrollTo(minIdx);
+        this.sideNavOpen = false
+      }
+    },
+    showNearestFactory() {
+      let minDis = null;
+      let minIdx = null;
+      this.filteredBabyCenterData.forEach((e, i) => {
+        if (minDis === null) {
+          minDis = parseFloat(distance(e.lanLong[0], e.lanLong[1], this.factory[0], this.factory[1]));
+          minIdx = i;
+        } else {
+          let d = parseFloat(distance(e.lanLong[0], e.lanLong[1], this.factory[0], this.factory[1]));
+          if (d < minDis) {
+            minDis = parseFloat(distance(e.lanLong[0], e.lanLong[1], this.factory[0], this.factory[1]));
+            minIdx = i;
+          }
+        }
+      });
+      if (minIdx !== null) {
+        addDirection(this.filteredBabyCenterData[minIdx].lanLong);
+        this.sliderScrollTo(minIdx);
+        this.sideNavOpen = false
+      }
+    },
+    showNearestBetween() {
+      let minDis = null;
+      let minIdx = null;
+      let avglan = (this.factory[0] + this.home[0]) / 2;
+      let avglong = (this.factory[1] + this.home[1]) / 2;
+      this.filteredBabyCenterData.forEach((e, i) => {
+        if (minDis === null) {
+          minDis = parseFloat(distance(e.lanLong[0], e.lanLong[1], avglan, avglong));
+          minIdx = i;
+        } else {
+          let d = parseFloat(distance(e.lanLong[0], e.lanLong[1], avglan, avglong));
+          if (d < minDis) {
+            minDis = parseFloat(distance(e.lanLong[0], e.lanLong[1], avglan, avglong));
+            minIdx = i;
+          }
+        }
+      });
+      if (minIdx !== null) {
+        addDirection(this.filteredBabyCenterData[minIdx].lanLong);
+        this.sliderScrollTo(minIdx);
+        this.sideNavOpen = false
+      }
+    },
   }
 };
+
+function distance(lat1,lon1,lat2,lon2) {
+  var R = 6371; // km (change this constant to get miles)
+  var dLat = (lat2-lat1) * Math.PI / 180;
+  var dLon = (lon2-lon1) * Math.PI / 180;
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180 ) * Math.cos(lat2 * Math.PI / 180 ) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c;
+  //if (d>1) return Math.round(d)+"km";
+  //else if (d<=1) return Math.round(d*1000)+"m";
+  return d;
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

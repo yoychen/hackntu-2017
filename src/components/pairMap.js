@@ -207,6 +207,7 @@ export function getLanLongFromAddr(addr) {
 }
 
 export function addDirection (waypoint) {
+  $('#pairMap').tinyMap('clear', 'direction');
   $('#pairMap').tinyMap('modify', {
     direction: [
       {
@@ -253,7 +254,6 @@ export function addMarkers (data, icon, sliderScrollTo) {
                 'event': {
                     'click': function (e) {
                       sliderScrollTo(nowIdx);
-                      $('#pairMap').tinyMap('clear', 'direction');
                       addDirection(nowLocation.lanLong);
                     }.bind(this),
                 }
@@ -263,6 +263,7 @@ export function addMarkers (data, icon, sliderScrollTo) {
     }, this);
 }
 
+let first = true;
 export function setMap (cb, center) {
   $('#pairMap').tinyMap({
     styles: mapTheme,
@@ -272,7 +273,12 @@ export function setMap (cb, center) {
     zoom: 12,
     loading: '',
     event: {
-        idle: cb,
+        idle: function () {
+          if (first) {
+            cb();
+            first = false;
+          }
+        },
     }
     // direction: [
     //   {
