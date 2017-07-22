@@ -107,6 +107,8 @@
 </template>
 
 <script>
+import swal from 'sweetalert2'
+
 export default {
   name: 'register',
   data() {
@@ -201,13 +203,22 @@ export default {
         }).catch(function(error){
           console.error("寫入使用者資訊錯誤",error);
         });
-        alert('註冊成功');
-      })
+        swal(
+          '註冊成功',
+          '',
+          'success'
+        );
+        this.$router.push('/login');
+      }.bind(this))
       .catch(function(error) {
         // Handle Errors here.
         let errorCode = error.code;
         let errorMessage = error.message;
-        alert(errorMessage);
+        swal(
+          errorMessage,
+          '',
+          'error'
+        );
       });
     },
   }

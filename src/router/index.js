@@ -30,7 +30,7 @@ export default new Router({
       path: '/managerPair', component: ManagerPair,
     },
     {
-      path: '/nannyInfo', component: NannyInfo,
+      path: '/nannyInfo/:idx', component: NannyInfo,
     },
   ],
 });

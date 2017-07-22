@@ -151,7 +151,7 @@ let mapTheme = [
     }
 ];
 
-export function setMap () {
+export function setMyLocation () {
   $('#pairMap').tinyMap({
     styles: mapTheme,
     disableDefaultUI: true,
@@ -185,5 +185,117 @@ export function setMap () {
         }
       }
     ]
+  });
+}
+
+export function getLanLongFromAddr(addr) {
+  return new Promise((resolve, reject) => {
+    var geocoder = new google.maps.Geocoder();
+    geocoder.geocode({
+      'address': addr
+    }, function (results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        resolve([
+          results[0].geometry.location.lat(),
+          results[0].geometry.location.lng()
+        ]);
+      } else {
+        reject();
+      }
+    });
+  });
+}
+
+export function addMarkers (data, icon, sliderScrollTo) {
+    data.forEach(function(e, i) {
+        let nowLocation = e;
+        let nowIdx = i;
+        $('#pairMap').tinyMap('modify', {
+            'marker': [{
+                'addr': e.lanLong ? e.lanLong : e.addr,
+                'animation': 'none',
+                'text': '<strong>' + e.addr + '</strong>',
+                'icon': {
+                    url: '/static/img/' + icon + '.png',
+                },
+                'event': {
+                    'click': function (e) {
+                      sliderScrollTo(nowIdx);
+                      $('#pairMap').tinyMap('clear', 'direction');
+                      $('#pairMap').tinyMap('modify', {
+                        direction: [
+                          {
+                            from: [25.07979,121.5678709],
+                            to: [25.0516539,121.51374910000004],
+                            travel: 'driving',
+                            // 自訂路徑顏色
+                            polylineOptions: {
+                              strokeColor: '#FFC107',
+                              strokeOpacity: 1,
+                            },
+                            waypoint: [
+                              nowLocation.lanLong,
+                            ],
+                            icon: {
+                              from: '/static/img/industry.png',
+                              to: '/static/img/house.png',
+                              waypoint: '/static/img/baby.png',
+                            },
+                            event: {
+                              directions_changed: {
+                                func: function () {
+                                    // $('#alert').addClass('alert-success').text('路徑規劃已完成。');
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      });
+                    }.bind(this),
+                }
+            }]
+        });
+        
+    }, this);
+}
+
+export function setMap (cb, center) {
+  $('#pairMap').tinyMap({
+    styles: mapTheme,
+    disableDefaultUI: true,
+    autoLocation: center ? false : true,
+    center: center ? center : undefined,
+    zoom: 12,
+    loading: '',
+    event: {
+        idle: cb,
+    }
+    // direction: [
+    //   {
+    //     from: '臺北市大安區羅斯福路四段一號',
+    //     to: '臺北市北平西路三號',
+    //     travel: 'driving',
+    //     // 自訂路徑顏色
+    //     polylineOptions: {
+    //       strokeColor: '#FFC107',
+    //       strokeOpacity: 1,
+    //     },
+    //     waypoint: [
+    //       '台北市信義區仁愛路4段505號',
+    //     ],
+    //     icon: {
+    //       from: '/static/img/industry.png',
+    //       to: '/static/img/house.png',
+    //       waypoint: '/static/img/baby.png',
+    //     },
+    //     event: {
+    //       directions_changed: {
+    //         func: function () {
+    //             $('#alert').addClass('alert-success').text('路徑規劃已完成。');
+    //         }
+    //       }
+    //     }
+    //   }
+    // ]
   });
 }

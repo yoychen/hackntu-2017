@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import swal from 'sweetalert2'
+
 export default {
   name: 'login',
   data() {
@@ -82,7 +84,6 @@ export default {
       .then(function (authData) {
         let loginUser = firebase.auth().currentUser;
         console.log("登入使用者為",loginUser);
-        alert('登入成功');
         if (this.email === 'admin@admin.admin') {
           this.$router.push('/managerPair');
         } else {
@@ -94,7 +95,11 @@ export default {
         // Handle Errors here.
         let errorCode = error.code;
         let errorMessage = error.message;
-        alert(errorMessage);
+        swal(
+          errorMessage,
+          '',
+          'error'
+        );
       });
     },
     saveLocalStorage: function() {

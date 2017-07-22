@@ -6,13 +6,9 @@
     <div @click.stop class="filter-sidebar" :class="{ open: sideNavOpen }">
       <h2>配對邀請</h2>
       <div class="card-list">
-        <div @click="replyPair" class="card">
-          <h2>David</h2>
-          <p>台北市信義區仁愛路4段505號</p>
-        </div>
-        <div class="card">
-          <h2>David</h2>
-          <p>台北市信義區仁愛路4段505號</p>
+        <div v-for="item in invitationList" @click="replyPair(item)" class="card">
+          <h2>{{ item.username }}</h2>
+          <p>{{ item.homeLocation }}</p>
         </div>
       </div>
     </div>
@@ -21,29 +17,11 @@
 
     <div class="swiper-container">
       <div class="swiper-wrapper">
-        <div @click="replyPair" class="swiper-slide">
+        <div @click="replyPair" v-for="item in invitationList" class="swiper-slide">
           <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
           <div class="user-info">
-            <h2>Alice <span>3.8<i class="material-icons">star_rate</i></span></h2>
-            <p>台北市信義區仁愛路4段505號</p>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="card">
-            <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
-            <div class="user-info">
-              <h2>Alice <span>3.8<i class="material-icons">star_rate</i></span></h2>
-              <p>台北市信義區仁愛路4段505號</p>
-            </div>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="card">
-            <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
-            <div class="user-info">
-              <h2>Alice <span>3.8<i class="material-icons">star_rate</i></span></h2>
-              <p>台北市信義區仁愛路4段505號</p>
-            </div>
+            <h2>{{ item.username }} <span>3.8<i class="material-icons">star_rate</i></span></h2>
+            <p>{{ item.homeLocation }}</p>
           </div>
         </div>
       </div>
@@ -60,25 +38,56 @@ import { setMap } from './pairMap.js';
 import swal from 'sweetalert2'
 
 export default {
-  name: 'pairMap',
+  name: 'managePair',
   data() {
     return {
       sideNavOpen: false,
       careInstitutions: ['托兒所', '安親班', '保姆'],
       careInstitutionsFilter: ['托兒所', '安親班', '保姆'],
-
+      invitationList: [],
+      mySwiper: this,
     };
   },
   mounted() {
     $.material.init();
     setMap();
-    var mySwiper = new Swiper ('.swiper-container', {
+    this.mySwiper = new Swiper ('.swiper-container', {
       loop: true,
       // spaceBetween: 30,
       
       // 如果需要分页器
       pagination: '.swiper-pagination',
-    })        
+    });
+  },
+  updated () {
+    this.mySwiper.destroy();
+    this.mySwiper = new Swiper ('.swiper-container', {
+      loop: true,
+      // spaceBetween: 30,
+      
+      // 如果需要分页器
+      pagination: '.swiper-pagination',
+    });
+  },
+  created () {
+    var ref = firebase.database().ref('/invitation');
+
+    ref.on("value", function(snapshot) {
+      let invitationList = snapshot.val();
+      let formatedData = [];
+      for (let key in invitationList) {
+        let data = invitationList[key];
+        formatedData.push(data);
+      }
+      this.invitationList = formatedData;
+      console.log(formatedData);
+    }.bind(this), function (error) {
+      swal(
+        error.message,
+        '',
+        'error'
+      )
+    });
   },
   methods: {
     toggleCareInstitutionsFilter(item) {
@@ -102,6 +111,7 @@ export default {
         cancelButtonClass: 'btn btn-danger',
         buttonsStyling: false
       }).then(function () {
+        
         swal(
           'Deleted!',
           'Your file has been deleted.',
@@ -111,6 +121,7 @@ export default {
         // dismiss can be 'cancel', 'overlay',
         // 'close', and 'timer'
         if (dismiss === 'cancel') {
+
           swal(
             'Cancelled',
             'Your imaginary file is safe :)',

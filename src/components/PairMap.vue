@@ -1,6 +1,6 @@
 <template>
   <div @click="sideNavOpen = false">
-    <div id="pairMap" class="pairMap">
+    <div ref="Gmap" id="pairMap" class="pairMap">
     </div>
 
     <div @click.stop class="filter-sidebar" :class="{ open: sideNavOpen }">
@@ -41,29 +41,11 @@
 
     <div class="swiper-container">
       <div class="swiper-wrapper">
-        <div @click="$router.push('/NannyInfo')" class="swiper-slide">
-          <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
+        <div v-for="item, index in filteredBabyCenterData" :data-idx="index" class="swiper-slide">
+          <div class="avatar" :style="{ 'background-image': `url(${item.avatar})` }" ></div>
           <div class="user-info">
-            <h2>Alice <span>3.8<i class="material-icons">star_rate</i></span></h2>
-            <p>台北市信義區仁愛路4段505號</p>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="card">
-            <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
-            <div class="user-info">
-              <h2>Alice <span>3.8<i class="material-icons">star_rate</i></span></h2>
-              <p>台北市信義區仁愛路4段505號</p>
-            </div>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="card">
-            <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
-            <div class="user-info">
-              <h2>Alice <span>3.8<i class="material-icons">star_rate</i></span></h2>
-              <p>台北市信義區仁愛路4段505號</p>
-            </div>
+            <h2>{{ item.name }} <span>{{ item.star }}<i class="material-icons">star_rate</i></span></h2>
+            <p>{{ item.addr }}</p>
           </div>
         </div>
       </div>
@@ -76,11 +58,14 @@
 </template>
 
 <script>
-import { setMap } from './pairMap.js';
+import { setMap, addMarkers, getLanLongFromAddr } from './pairMap.js';
+import babyCenterData from './BabyCenterData.js';
+import Vue from 'vue';
 
 export default {
   name: 'pairMap',
   data() {
+    let userData = {} || JSON.parse(localStorage.userDetail);
     return {
       sideNavOpen: false,
       careInstitutions: ['托兒所', '安親班', '保姆'],
@@ -88,20 +73,98 @@ export default {
       pairMode: 1,
       startDate: null,
       endDate: null,
+      babyCenterData,
+      userData,
+      mySwiper: null,
+      home: [25.07979,121.5678709],
+      factory: [25.0516539,121.51374910000004],
     };
+  },
+  computed: {
+    filteredBabyCenterData: function () {
+      let result = this.babyCenterData.filter(function (e) {
+        let show = true;
+        if (this.careInstitutionsFilter.indexOf(e.type) === -1) {
+          show = false;
+        }
+        if (this.startDate) {
+          let time = new Date(this.startDate);
+          if (time.toLocaleTimeString().indexOf('上午') > -1 && e.availableTime !== 1) {
+            show = false;
+          }
+          if (time.toLocaleTimeString().indexOf('上午') < -1 && e.availableTime !== 0) {
+            show = false;
+          }
+        }
+        return show;
+        
+      }, this);
+      localStorage.filteredBabyCenterData = JSON.stringify(result);
+      return result;
+    },
+  },
+  watch: {
+    filteredBabyCenterData: function () {
+
+      $(this.$refs.Gmap).tinyMap('clear', 'marker,polyline,circle,direction');
+      Vue.nextTick(function () {
+        addMarkers([{
+          addr: '台北市內湖區瑞光路581號及581之1號',
+        }], 'industry');
+        addMarkers([{
+          addr: '台北市大同區長安西路',
+        }], 'house');
+        addMarkers(this.filteredBabyCenterData, 'baby', this.sliderScrollTo);
+        $('.swiper-slide').off('click', this.handleSliderClick);
+        this.mySwiper.destroy();
+        this.mySwiper = new Swiper ('.swiper-container', {
+          loop: true,
+          // spaceBetween: 30,
+          
+          // 如果需要分页器
+          pagination: '.swiper-pagination',
+        });
+        $('.swiper-slide').on('click', this.handleSliderClick);
+      }.bind(this));
+    }
   },
   mounted() {
     $.material.init();
-    setMap();
-    var mySwiper = new Swiper ('.swiper-container', {
+    setMap(function () {
+      // getLanLongFromAddr('台北市內湖區瑞光路581號及581之1號').then((lanLong) => {
+      // this.home = lanLong;
+      // });
+      // getLanLongFromAddr('台北市大同區長安西路').then((lanLong) => {
+      //   this.factory = lanLong;
+      // });
+
+      addMarkers([{
+        addr: '台北市內湖區瑞光路581號及581之1號',
+      }], 'industry');
+      addMarkers([{
+        addr: '台北市大同區長安西路',
+      }], 'house');
+      addMarkers(this.filteredBabyCenterData, 'baby', this.sliderScrollTo);
+    }.bind(this), '台北市大同區長安西路');
+
+    this.mySwiper = new Swiper ('.swiper-container', {
       loop: true,
       // spaceBetween: 30,
       
       // 如果需要分页器
       pagination: '.swiper-pagination',
-    })        
+    });      
+
+    $('.swiper-slide').on('click', this.handleSliderClick);
   },
   methods: {
+    sliderScrollTo: function (idx) {
+      this.mySwiper.slideTo(idx+1, 1000, false);
+    },
+    handleSliderClick(e) {
+      var idx = $(e.currentTarget).data('idx');
+      this.$router.push(`/nannyInfo/${idx}`)
+    },
     toggleCareInstitutionsFilter(item) {
       if (this.careInstitutionsFilter.indexOf(item) > -1) {
         this.careInstitutionsFilter.splice(this.careInstitutionsFilter.indexOf(item), 1);

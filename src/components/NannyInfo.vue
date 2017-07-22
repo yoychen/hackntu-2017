@@ -5,9 +5,9 @@
       <!--<h1>Title</h1>-->
     </div>
     <div class="user-info">
-      <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/52.jpg');" ></div>
-      <h2>David</h2>
-      <p>台北市信義區仁愛路4段505號</p>
+      <div class="avatar" :style="{ 'background-image': `url(${nannyData.avatar})` }" ></div>
+      <h2>{{ nannyData.name }}</h2>
+      <p>{{ nannyData.addr }}</p>
     </div>
     <div class="user-content">
       <ul class="list-unstyled">
@@ -21,16 +21,16 @@
         </li>
         <li>
           <i class="material-icons">phone</i>
-          0911455544
+          {{ nannyData.phone }}
         </li>
       </ul>
     </div>
     <div class="user-action">
       <BounceLoader size="25px" color="rgb(255, 230, 14)"></BounceLoader>
-      <span>David 目前時段 14：00-16：00 有空
+      <span>您所需求的時段 David 目前有空
       </span>
 
-      <button type="submit" class="btn-block btn-raised btn btn-primary">前往媒合</button>
+      <button @click="sendInvitation" type="submit" class="btn-block btn-raised btn btn-primary">前往媒合</button>
     </div>
   </div>
 </template>
@@ -47,14 +47,20 @@ export default {
     'BounceLoader': BounceLoader,
   },
   data() {
+    let nannyData;
+    if (localStorage.filteredBabyCenterData) {
+      nannyData = JSON.parse(localStorage.filteredBabyCenterData)[this.$route.params.idx];
+    }
     return {
+      nannyData,
     };
   },
   mounted() {
     $.material.init();    
   },
   methods: {
-    swal({
+    sendInvitation() {
+      swal({
         title: '',
         text: '是否送出配對邀請',
         type: 'question',
@@ -67,14 +73,31 @@ export default {
         cancelButtonClass: 'btn btn-danger',
         buttonsStyling: false
       }).then(function () {
-        firebase.database().ref('users/' + loginUser.uid).set({
-          email: loginUser.email,
-          name: name.value,
-          age : age.value
-        }).catch(function(error){
-          console.error("寫入使用者資訊錯誤",error);
+        let userData = JSON.parse(localStorage.userDetail);
+        firebase.database().ref('invitation').push().set({
+          username: userData.username,
+          homeLocation: userData.homeLocation,
+          nanny: 'tutu',
+        })
+        .then(function (data) {
+          swal(
+            '邀請已送出',
+            '',
+            'success'
+          );
+          this.$router.go(-1);
+
+        }.bind(this))
+        .catch(function(error){
+          swal(
+            error.message,
+            '',
+            'error'
+          )
         });
-      });
+      }.bind(this), () => {});
+
+    }
   }
 };
 </script>
@@ -121,7 +144,7 @@ export default {
       background-position: center;
     }
     h2 {
-      margin: 0 0 3px;
+      margin: 0 0 6px;
       font-size: 23px;
       font-weight: 400;
     }
